@@ -1,0 +1,8 @@
+//
+// Created by michal on 22.01.17.
+//
+
+#ifndef FUNCTIONAL_BINARY_TREE_TREE_H
+#define FUNCTIONAL_BINARY_TREE_TREE_H
+
+#endif //FUNCTIONAL_BINARY_TREE_TREE_H
