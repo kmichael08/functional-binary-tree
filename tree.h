@@ -7,7 +7,11 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 
+enum Traversal {
+    INORDER, POSTORDER, PREORDER
+};
 
 template <typename T>
 class Tree {
@@ -19,7 +23,8 @@ class Tree {
     Tree(T value): _value(value) {}
 public:
     Tree() : _hasValue(0) {}
-    Tree(REF_NODE root) : _left(root->_left), _right(root->_right), _value(root->_value) {}
+    Tree(REF_NODE root) : Tree(root->_value, root->_left, root->_right) {}
+
 
     template <typename R, typename F>
     R fold(F operation, R init) {
@@ -75,9 +80,47 @@ public:
         }, std::make_tuple(0, 0, true, false)));
     }
 
+    static const Traversal inorder = INORDER;
+    static const Traversal preorder = PREORDER;
+    static const Traversal postorder = POSTORDER;
+
+    template <typename F>
+    void apply(F operation, const Traversal traversal) {
+        if (this == nullptr)
+            return;
+
+        if (_left == nullptr && _right == nullptr) {
+            if (_hasValue)
+                operation(_value);
+            return;
+        }
+
+        if (traversal == INORDER) {
+            _left->apply(operation, traversal);
+            operation(_value);
+            _right->apply(operation, traversal);
+        }
+        if (traversal == POSTORDER) {
+            _left->apply(operation, traversal);
+            _right->apply(operation, traversal);
+            operation(_value);
+        }
+        if (traversal == PREORDER) {
+            operation(_value);
+            _left->apply(operation, traversal);
+            _right->apply(operation, traversal);
+        }
+    }
+
+    void print(const Traversal traversal=INORDER) {
+        apply([](T el){ std::cout << " " << el; }, traversal);
+        std::cout << std::endl;
+    }
+
 
 
 };
+
 
 
 #endif //FUNCTIONAL_BINARY_TREE_TREE_H

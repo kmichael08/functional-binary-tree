@@ -17,7 +17,6 @@ int main(int argc, const char * argv[]) {
     tree.print(Tree<int>::inorder);
     tree.print(Tree<int>::preorder);
     tree.print(Tree<int>::postorder);
-
     std::cout << "size: " << tree.size() << std::endl;
     std::cout << "height: " << tree.height() << std::endl;
     std::cout << "bst: " << tree.is_bst() << std::endl;
@@ -26,6 +25,7 @@ int main(int argc, const char * argv[]) {
     tree.apply([](int e){std::cout << e << ":";}, Tree<int>::inorder);
     std::cout << std::endl;
 
+/*
     int x = 2;
     Tree<int> minus_x = tree.map([&](int e)->int{return e - x;});
     Tree<int> lazy_minus_x = tree.lazy_map([&](int e)->int{return e - x;});
@@ -44,4 +44,5 @@ int main(int argc, const char * argv[]) {
 
     int sum2 = tree.fold([](int val, int l, int r)->int{return val + l + r;}, 0);
     std::cout << "sum: " << sum2 << std::endl;
+     */
 }
