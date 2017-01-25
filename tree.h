@@ -25,7 +25,7 @@ public:
     Tree(REF_NODE root) : Tree(root->_value, root->_left, root->_right) {}
 
     template <typename R, typename F>
-    R fold(F operation, R init) {
+    R fold(F operation, R init) const {
         if (!_hasValue)
             return init;
         else
@@ -45,11 +45,11 @@ public:
     }
 
 
-    unsigned height() {
+    unsigned height() const {
         return fold<unsigned>([&](unsigned val, unsigned l_height, unsigned r_height){ return std::max(l_height, r_height) + 1; }, 0);
     }
 
-    unsigned size() {
+    unsigned size() const {
         return fold<unsigned>([&](unsigned val, unsigned l_size, unsigned r_size) { return l_size + r_size + unsigned(_hasValue); }, 0);
     }
 
@@ -58,7 +58,7 @@ public:
      */
     using NODE_INFO = std::tuple<T, T, bool, bool>;
 
-    bool is_bst() {
+    bool is_bst() const {
         return std::get<2>(fold([](T val, NODE_INFO l_tree, NODE_INFO r_tree){
             bool l_bst = std::get<2>(l_tree), r_bst = std::get<2>(r_tree);
 
@@ -88,17 +88,17 @@ public:
         if (!_hasValue)
             return;
 
-        if (traversal == INORDER) {
+        if (traversal == inorder) {
             _left->apply(operation, traversal);
             operation(_value);
             _right->apply(operation, traversal);
         }
-        if (traversal == POSTORDER) {
+        if (traversal == postorder) {
             _left->apply(operation, traversal);
             _right->apply(operation, traversal);
             operation(_value);
         }
-        if (traversal == PREORDER) {
+        if (traversal == preorder) {
             operation(_value);
             _left->apply(operation, traversal);
             _right->apply(operation, traversal);
@@ -112,7 +112,7 @@ public:
         return result;
     }
 
-    void print(const Traversal traversal=INORDER) {
+    void print(const Traversal traversal=inorder) {
         apply([](T el){ std::cout << el << " "; }, traversal);
         std::cout << std::endl;
     }
