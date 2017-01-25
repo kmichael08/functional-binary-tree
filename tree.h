@@ -20,22 +20,20 @@ class Tree {
     T _value;
     bool _hasValue = 1;
     Tree(T value, REF_NODE left, REF_NODE right) : _left(left), _right(right), _value(value) {}
-    Tree(T value): _value(value) {}
 public:
     Tree() : _hasValue(0) {}
     Tree(REF_NODE root) : Tree(root->_value, root->_left, root->_right) {}
 
-
     template <typename R, typename F>
     R fold(F operation, R init) {
-        if (this == nullptr || !_hasValue)
+        if (!_hasValue)
             return init;
         else
             return operation(_value, _left->fold(operation, init), _right->fold(operation, init));
     };
 
     static REF_NODE createEmptyNode() {
-        return REF_NODE();
+        return REF_NODE(new Tree());
     }
 
     static REF_NODE createValueNode(T value, REF_NODE left, REF_NODE right) {
@@ -43,7 +41,7 @@ public:
     }
 
     static REF_NODE createValueNode(T value) {
-        return REF_NODE(new Tree(value));
+        return createValueNode(value, createEmptyNode(), createEmptyNode());
     }
 
 
@@ -87,14 +85,8 @@ public:
 
     template <typename F>
     void apply(F operation, const Traversal traversal) {
-        if (this == nullptr)
+        if (!_hasValue)
             return;
-
-        if (_left == nullptr && _right == nullptr) {
-            if (_hasValue)
-                operation(_value);
-            return;
-        }
 
         if (traversal == INORDER) {
             _left->apply(operation, traversal);
@@ -121,7 +113,7 @@ public:
     }
 
     void print(const Traversal traversal=INORDER) {
-        apply([](T el){ std::cout << " " << el; }, traversal);
+        apply([](T el){ std::cout << el << " "; }, traversal);
         std::cout << std::endl;
     }
 
