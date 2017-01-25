@@ -38,13 +38,14 @@ public:
         return REF_NODE();
     }
 
+    static REF_NODE createValueNode(T value, REF_NODE left, REF_NODE right) {
+        return REF_NODE(new Tree(value, left, right));
+    }
+
     static REF_NODE createValueNode(T value) {
         return REF_NODE(new Tree(value));
     }
 
-    static REF_NODE createValueNode(T value, REF_NODE left, REF_NODE right) {
-        return REF_NODE(new Tree(value, left, right));
-    }
 
     unsigned height() {
         return fold<unsigned>([&](unsigned val, unsigned l_height, unsigned r_height){ return std::max(l_height, r_height) + 1; }, 0);
@@ -110,6 +111,13 @@ public:
             _left->apply(operation, traversal);
             _right->apply(operation, traversal);
         }
+    }
+
+    template <typename F>
+    T accumulate(F operation, T init, const Traversal traversal) {
+        T result = init;
+        apply([&](T el){ result = operation(result, el); } , traversal);
+        return result;
     }
 
     void print(const Traversal traversal=INORDER) {
