@@ -117,6 +117,20 @@ public:
         std::cout << std::endl;
     }
 
+    Tree<T> map(std::function<T (T)> transformer) {
+		return fold([&](T val, REF_NODE left, REF_NODE right){
+			return createValueNode(transformer(val), left, right);
+			}, createEmptyNode());		
+	}
+
+	Tree<T> lazy_map(std::function<T (T)> transformer) {
+		return map(transformer);
+	}
+	
+	Tree<T> filter(std::function<bool (T)> predicate) {
+		
+	}
+
 
 
 };

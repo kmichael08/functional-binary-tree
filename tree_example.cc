@@ -25,7 +25,6 @@ int main(int argc, const char * argv[]) {
     tree.apply([](int e){std::cout << e << ":";}, Tree<int>::inorder);
     std::cout << std::endl;
 
-/*
     int x = 2;
     Tree<int> minus_x = tree.map([&](int e)->int{return e - x;});
     Tree<int> lazy_minus_x = tree.lazy_map([&](int e)->int{return e - x;});
@@ -34,15 +33,15 @@ int main(int argc, const char * argv[]) {
     minus_x.print();
     std::cout << "-4: ";
     lazy_minus_x.print();
-
+	/*
     Tree<int> odd = minus_x.filter([](int e)->bool{return (e & 1) == 1;});
     std::cout << "odd: ";
     odd.print();
-
+	*/
     int sum1 = tree.accumulate(std::plus<int>(), 0, Tree<int>::inorder);
     std::cout << "sum: " << sum1 << std::endl;
 
     int sum2 = tree.fold([](int val, int l, int r)->int{return val + l + r;}, 0);
     std::cout << "sum: " << sum2 << std::endl;
-     */
+     
 }
