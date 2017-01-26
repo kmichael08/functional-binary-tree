@@ -127,8 +127,22 @@ public:
 		return map(transformer);
 	}
 	
+	// tree, far-right in the tree
+	using NN = std::pair<REF_NODE, REF_NODE>;
+	
 	Tree<T> filter(std::function<bool (T)> predicate) {
-		
+		return fold([&](T value, NN left, NN right) {
+			if (predicate(value))
+				return std::make_pair(createValueNode(value, left.first, right.first), right.second); 
+			else {
+				REF_NODE temp = right.second;
+				left.second = right.first;
+				left.second = temp;
+				return left;				
+			}
+	},
+	std::make_pair(createEmptyNode(), createEmptyNode())
+		).first;
 	}
 
 

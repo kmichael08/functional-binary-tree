@@ -33,11 +33,11 @@ int main(int argc, const char * argv[]) {
     minus_x.print();
     std::cout << "-4: ";
     lazy_minus_x.print();
-	/*
+	
     Tree<int> odd = minus_x.filter([](int e)->bool{return (e & 1) == 1;});
     std::cout << "odd: ";
     odd.print();
-	*/
+	
     int sum1 = tree.accumulate(std::plus<int>(), 0, Tree<int>::inorder);
     std::cout << "sum: " << sum1 << std::endl;
 
