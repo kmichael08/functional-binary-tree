@@ -19,13 +19,23 @@ class Tree {
     REF_NODE _left, _right;
     T _value;
     bool _hasValue = 1;
+    std::vector<std::function<T (T)>> _transformers;
     Tree(T value, REF_NODE left, REF_NODE right) : _left(left), _right(right), _value(value) {}
 public:
     Tree() : _hasValue(0) {}
     Tree(REF_NODE root) : Tree(root->_value, root->_left, root->_right) {}
 
+    T getValue() {
+        //std:: cout << "Pobieramy :" << _value << std::endl;
+        for (auto fun : _transformers)
+            _value = fun(_value);
+        _transformers.clear();
+       // std::cout << "Zwracamy :" << _value << std::endl;
+        return _value;
+    }
+
     template <typename R, typename F>
-    R fold(F operation, R init) const {
+    R fold(F operation, R init) {
         if (!_hasValue)
             return init;
         else
@@ -45,11 +55,11 @@ public:
     }
 
 
-    unsigned height() const {
+    unsigned height() {
         return fold<unsigned>([&](unsigned val, unsigned l_height, unsigned r_height){ return std::max(l_height, r_height) + 1; }, 0);
     }
 
-    unsigned size() const {
+    unsigned size() {
         return fold<unsigned>([&](unsigned val, unsigned l_size, unsigned r_size) { return l_size + r_size + unsigned(_hasValue); }, 0);
     }
 
@@ -58,7 +68,7 @@ public:
      */
     using NODE_INFO = std::tuple<T, T, bool, bool>;
 
-    bool is_bst() const {
+    bool is_bst() {
         return std::get<2>(fold([](T val, NODE_INFO l_tree, NODE_INFO r_tree){
             bool l_bst = std::get<2>(l_tree), r_bst = std::get<2>(r_tree);
 
@@ -90,16 +100,16 @@ public:
 
         if (traversal == inorder) {
             _left->apply(operation, traversal);
-            operation(_value);
+            operation(getValue());
             _right->apply(operation, traversal);
         }
         if (traversal == postorder) {
             _left->apply(operation, traversal);
             _right->apply(operation, traversal);
-            operation(_value);
+            operation(getValue());
         }
         if (traversal == preorder) {
-            operation(_value);
+            operation(getValue());
             _left->apply(operation, traversal);
             _right->apply(operation, traversal);
         }
@@ -118,14 +128,18 @@ public:
     }
 
     Tree<T> map(std::function<T (T)> transformer) {
-		return fold([&](T val, REF_NODE left, REF_NODE right){
+		return *fold([&](T val, REF_NODE left, REF_NODE right){
 			return createValueNode(transformer(val), left, right);
 			}, createEmptyNode());		
 	}
 
 	Tree<T> lazy_map(std::function<T (T)> transformer) {
-		return map(transformer);
-	}
+        return *fold([&](T val, REF_NODE left, REF_NODE right){
+            auto res = createValueNode(val, left, right);
+            res->_transformers.push_back(transformer);
+            return res;
+        }, createEmptyNode());
+    }
 	
 	// tree, far-right in the tree
 	using NN = std::pair<REF_NODE, REF_NODE>;
