@@ -19,6 +19,9 @@ class Tree {
     REF_NODE _left, _right;
     T _value;
     bool _hasValue = 1;
+    /**
+     * Functions needed to calculate the value.
+     */
     std::vector<std::function<T (T)>> _transformers;
     Tree(T value, REF_NODE left, REF_NODE right) : _left(left), _right(right), _value(value) {}
 public:
@@ -26,11 +29,9 @@ public:
     Tree(REF_NODE root) : Tree(root->_value, root->_left, root->_right) {}
 
     T getValue() {
-        //std:: cout << "Pobieramy :" << _value << std::endl;
         for (auto fun : _transformers)
             _value = fun(_value);
         _transformers.clear();
-       // std::cout << "Zwracamy :" << _value << std::endl;
         return _value;
     }
 
@@ -39,7 +40,7 @@ public:
         if (!_hasValue)
             return init;
         else
-            return operation(_value, _left->fold(operation, init), _right->fold(operation, init));
+            return operation(getValue(), _left->fold(operation, init), _right->fold(operation, init));
     };
 
     static REF_NODE createEmptyNode() {
@@ -54,11 +55,13 @@ public:
         return createValueNode(value, createEmptyNode(), createEmptyNode());
     }
 
-
     unsigned height() {
         return fold<unsigned>([&](unsigned val, unsigned l_height, unsigned r_height){ return std::max(l_height, r_height) + 1; }, 0);
     }
 
+    /**
+     * return: number of not empty nodes.
+     */
     unsigned size() {
         return fold<unsigned>([&](unsigned val, unsigned l_size, unsigned r_size) { return l_size + r_size + unsigned(_hasValue); }, 0);
     }
@@ -93,6 +96,9 @@ public:
     static const Traversal preorder = PREORDER;
     static const Traversal postorder = POSTORDER;
 
+    /**
+     * Applies the operation on all values, along the given traversal.
+     */
     template <typename F>
     void apply(F operation, const Traversal traversal) {
         if (!_hasValue)
@@ -133,6 +139,9 @@ public:
 			}, createEmptyNode());		
 	}
 
+    /**
+     * Create a tree with mapped values, that are calculated, just as they are used for the first time.
+     */
 	Tree<T> lazy_map(std::function<T (T)> transformer) {
         return *fold([&](T val, REF_NODE left, REF_NODE right){
             auto res = createValueNode(val, left, right);
@@ -143,9 +152,13 @@ public:
 	
 	// tree, far-right in the tree
 	using NN = std::pair<REF_NODE, REF_NODE>;
-	
+
+    /**
+     * Creates the tree with nodes having values fulfilling the predicate. If erasing the node with two children, right
+     * one goes to the far-right of the left one.
+     */
 	Tree<T> filter(std::function<bool (T)> predicate) {
-		return fold([&](T value, NN left, NN right) {
+		return *fold([&](T value, NN left, NN right) {
 			if (predicate(value))
 				return std::make_pair(createValueNode(value, left.first, right.first), right.second); 
 			else {
